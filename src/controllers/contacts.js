@@ -69,16 +69,19 @@ export const createContactController = async (req, res) => {
     });
 };
 
+
 export const patchContactController = async (req, res) => {
     const { contactId } = req.params;
     const photo = req.file;
-    let photoUrl = null;
+
+    let updatedData = { ...req.body };
 
     if (photo) {
-        photoUrl = await saveFileToCloudinary(photo);
+        const photoUrl = await saveFileToCloudinary(photo);
+        updatedData.photo = photoUrl;
     }
 
-    const result = await updateContact(contactId, req.user._id, {...req.body, photo: photoUrl});
+    const result = await updateContact(contactId, req.user._id, updatedData);
 
     if (!result) {
         throw createHttpError(404, 'Contact not found');
@@ -90,6 +93,7 @@ export const patchContactController = async (req, res) => {
         data: result,
     });
 };
+
 
 export const deleteContactController = async (req, res) => {
     const { contactId } = req.params;
